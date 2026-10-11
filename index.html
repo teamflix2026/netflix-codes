@@ -139,6 +139,7 @@
       margin-top: 16px;
       transition: all 0.2s ease;
       box-shadow: 0 4px 12px rgba(255, 255, 255, 0.1);
+      display: block;
     }
 
     .btn-abrir:hover {
@@ -158,10 +159,11 @@
     <label for="box">Información extraída</label>
     <textarea id="box" class="resultado-txt" readonly>Presiona el botón superior para iniciar la consulta...</textarea>
     
-    <a id="btn-netflix" class="btn-abrir" href="#" target="_blank">🔓 Ir directo a Netflix</a>
+    <a id="btn-netflix" class="btn-abrir" href="#" target="_blank" style="display: none;">🔓 Ir directo a Netflix</a>
   </div>
 
   <script>
+    // URL de tu API de Google Apps Script
     const API_URL = "https://google.com";
 
     async function buscarUltimoCorreo() {
@@ -175,12 +177,17 @@
       botonNetflix.style.display = "none";
 
       try {
-        const respuesta = await fetch(API_URL);
+        // Ejecución optimizada para seguir de forma obligatoria las redirecciones de Google
+        const respuesta = await fetch(API_URL, {
+          method: 'GET',
+          redirect: 'follow'
+        });
         const data = await respuesta.json();
 
         if (data.error) {
           cuadroTexto.value = `Aviso del sistema:\n${data.error}`;
         } else {
+          // Reemplazo de caracteres HTML codificados por Netflix
           let enlaceLimpio = data.enlace.replace(/&amp;/g, '&');
 
           cuadroTexto.value = `📌 REGISTRO DE ACCESO COMPARTIDO\n` +
@@ -193,7 +200,7 @@
           botonNetflix.style.display = "block";
         }
       } catch (error) {
-        cuadroTexto.value = "Error de conexión:\nNo se pudo contactar con el script de Google. Revisa las configuraciones de red o los permisos globales.";
+        cuadroTexto.value = "Error de conexión:\nNo se pudo contactar con el script de Google. Inténtalo abriendo la página desde una pestaña de Incógnito para limpiar el bloqueo de caché CORS.";
         console.error(error);
       } finally {
         boton.disabled = false;
