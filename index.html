@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Acceso Compartido — Netflix</title>
-  <!-- Importamos una tipografía moderna y limpia desde Google Fonts -->
   <link rel="preconnect" href="https://googleapis.com">
   <link rel="preconnect" href="https://gstatic.com" crossorigin>
   <link href="https://googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
@@ -73,17 +72,13 @@
       cursor: pointer;
       width: 100%;
       transition: all 0.2s ease;
-      box-shadow: 0 4px 12px rgba(229, 9, 20, 0.3);
+      box-shadow: 0 4px 12 rgba(229, 9, 20, 0.3);
     }
 
     .btn-buscar:hover {
       background-color: var(--netflix-dark-red);
       transform: translateY(-1px);
       box-shadow: 0 6px 16px rgba(229, 9, 20, 0.4);
-    }
-
-    .btn-buscar:active {
-      transform: translateY(1px);
     }
 
     .btn-buscar:disabled {
@@ -120,11 +115,6 @@
       line-height: 1.5;
       resize: none;
       outline: none;
-      transition: border-color 0.2s;
-    }
-
-    .resultado-txt:focus {
-      border-color: rgba(255, 255, 255, 0.2);
     }
 
     .btn-abrir {
@@ -139,12 +129,10 @@
       margin-top: 16px;
       transition: all 0.2s ease;
       box-shadow: 0 4px 12px rgba(255, 255, 255, 0.1);
-      display: block;
     }
 
     .btn-abrir:hover {
       background-color: #e6e6e6;
-      box-shadow: 0 6px 16px rgba(255, 255, 255, 0.2);
     }
   </style>
 </head>
@@ -159,14 +147,13 @@
     <label for="box">Información extraída</label>
     <textarea id="box" class="resultado-txt" readonly>Presiona el botón superior para iniciar la consulta...</textarea>
     
-    <a id="btn-netflix" class="btn-abrir" href="#" target="_blank" style="display: none;">🔓 Ir directo a Netflix</a>
+    <a id="btn-netflix" class="btn-abrir" href="#" target="_blank">🔓 Ir directo a Netflix</a>
   </div>
 
   <script>
-    // URL de tu API de Google Apps Script
     const API_URL = "https://google.com";
 
-    async function buscarUltimoCorreo() {
+    function buscarUltimoCorreo() {
       const boton = document.getElementById("btn");
       const cuadroTexto = document.getElementById("box");
       const botonNetflix = document.getElementById("btn-netflix");
@@ -176,18 +163,36 @@
       cuadroTexto.value = "Abriendo canal seguro con teamflix2026+2@gmail.com...";
       botonNetflix.style.display = "none";
 
-      try {
-        // Ejecución optimizada para seguir de forma obligatoria las redirecciones de Google
-        const respuesta = await fetch(API_URL, {
-          method: 'GET',
-          redirect: 'follow'
-        });
-        const data = await respuesta.json();
+      // Eliminar scripts temporales previos si existen
+      const scriptViejo = document.getElementById("jsonp-script");
+      if (scriptViejo) scriptViejo.remove();
 
+      // CREACIÓN DEL CANAL INMUNE A CORS (JSONP)
+      const script = document.createElement("script");
+      script.id = "jsonp-script";
+      // Agregamos un número aleatorio al final para evitar que el navegador guarde respuestas viejas en caché
+      script.src = `${API_URL}?callback=procesarRespuestaServidor&nocache=${new Date().getTime()}`;
+      
+      // Manejo de errores por si Google se cae
+      script.onerror = function() {
+        cuadroTexto.value = "Error de conexión crítica.\nNo se pudo saltar la seguridad de Google. Verifica que el script siga activo.";
+        boton.disabled = false;
+        boton.innerText = "🔍 Buscar último acceso";
+      };
+
+      document.body.appendChild(script);
+    }
+
+    // ESTA FUNCIÓN SE ACTIVA AUTOMÁTICAMENTE CUANDO GOOGLE RESPONDE
+    function procesarRespuestaServidor(data) {
+      const boton = document.getElementById("btn");
+      const cuadroTexto = document.getElementById("box");
+      const botonNetflix = document.getElementById("btn-netflix");
+
+      try {
         if (data.error) {
           cuadroTexto.value = `Aviso del sistema:\n${data.error}`;
         } else {
-          // Reemplazo de caracteres HTML codificados por Netflix
           let enlaceLimpio = data.enlace.replace(/&amp;/g, '&');
 
           cuadroTexto.value = `📌 REGISTRO DE ACCESO COMPARTIDO\n` +
@@ -199,9 +204,9 @@
           botonNetflix.href = enlaceLimpio;
           botonNetflix.style.display = "block";
         }
-      } catch (error) {
-        cuadroTexto.value = "Error de conexión:\nNo se pudo contactar con el script de Google. Inténtalo abriendo la página desde una pestaña de Incógnito para limpiar el bloqueo de caché CORS.";
-        console.error(error);
+      } catch (err) {
+        cuadroTexto.value = "Error procesando los datos recibidos.";
+        console.error(err);
       } finally {
         boton.disabled = false;
         boton.innerText = "🔍 Buscar último acceso";
