@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Acceso Compartido — Netflix</title>
+  <!-- Importamos una tipografía moderna y limpia desde Google Fonts -->
   <link rel="preconnect" href="https://googleapis.com">
   <link rel="preconnect" href="https://gstatic.com" crossorigin>
   <link href="https://googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
@@ -72,7 +73,7 @@
       cursor: pointer;
       width: 100%;
       transition: all 0.2s ease;
-      box-shadow: 0 4px 12 rgba(229, 9, 20, 0.3);
+      box-shadow: 0 4px 12px rgba(229, 9, 20, 0.3);
     }
 
     .btn-buscar:hover {
@@ -153,38 +154,8 @@
   <script>
     const API_URL = "https://google.com";
 
-    function buscarUltimoCorreo() {
-      const boton = document.getElementById("btn");
-      const cuadroTexto = document.getElementById("box");
-      const botonNetflix = document.getElementById("btn-netflix");
-
-      boton.disabled = true;
-      boton.innerText = "🔄 Consultando a Gmail...";
-      cuadroTexto.value = "Abriendo canal seguro con teamflix2026+2@gmail.com...";
-      botonNetflix.style.display = "none";
-
-      // Eliminar scripts temporales previos si existen
-      const scriptViejo = document.getElementById("jsonp-script");
-      if (scriptViejo) scriptViejo.remove();
-
-      // CREACIÓN DEL CANAL INMUNE A CORS (JSONP)
-      const script = document.createElement("script");
-      script.id = "jsonp-script";
-      // Agregamos un número aleatorio al final para evitar que el navegador guarde respuestas viejas en caché
-      script.src = `${API_URL}?callback=procesarRespuestaServidor&nocache=${new Date().getTime()}`;
-      
-      // Manejo de errores por si Google se cae
-      script.onerror = function() {
-        cuadroTexto.value = "Error de conexión crítica.\nNo se pudo saltar la seguridad de Google. Verifica que el script siga activo.";
-        boton.disabled = false;
-        boton.innerText = "🔍 Buscar último acceso";
-      };
-
-      document.body.appendChild(script);
-    }
-
-    // ESTA FUNCIÓN SE ACTIVA AUTOMÁTICAMENTE CUANDO GOOGLE RESPONDE
-    function procesarRespuestaServidor(data) {
+    // Hacemos que la función de respuesta sea GLOBAL y visible para Google de forma explícita
+    window.procesarRespuestaServidor = function(data) {
       const boton = document.getElementById("btn");
       const cuadroTexto = document.getElementById("box");
       const botonNetflix = document.getElementById("btn-netflix");
@@ -193,6 +164,7 @@
         if (data.error) {
           cuadroTexto.value = `Aviso del sistema:\n${data.error}`;
         } else {
+          // Reemplazo de las entidades HTML que Netflix inyecta en los botones
           let enlaceLimpio = data.enlace.replace(/&amp;/g, '&');
 
           cuadroTexto.value = `📌 REGISTRO DE ACCESO COMPARTIDO\n` +
@@ -205,12 +177,42 @@
           botonNetflix.style.display = "block";
         }
       } catch (err) {
-        cuadroTexto.value = "Error procesando los datos recibidos.";
+        cuadroTexto.value = "Error al procesar la estructura de datos recibida.";
         console.error(err);
       } finally {
         boton.disabled = false;
         boton.innerText = "🔍 Buscar último acceso";
       }
+    };
+
+    function buscarUltimoCorreo() {
+      const boton = document.getElementById("btn");
+      const cuadroTexto = document.getElementById("box");
+      const botonNetflix = document.getElementById("btn-netflix");
+
+      boton.disabled = true;
+      boton.innerText = "🔄 Consultando a Gmail...";
+      cuadroTexto.value = "Abriendo canal seguro con teamflix2026+2@gmail.com...";
+      botonNetflix.style.display = "none";
+
+      // Eliminar scripts JSONP anteriores para limpiar el DOM
+      const scriptViejo = document.getElementById("jsonp-script");
+      if (scriptViejo) scriptViejo.remove();
+
+      // INYECCIÓN DINÁMICA DE SCRIPT GLOBAL (JSONP INMUNE A CORS)
+      const script = document.createElement("script");
+      script.id = "jsonp-script";
+      
+      // Enviamos el timestamp (?nocache=) para destruir la caché del navegador en cada clic
+      script.src = `${API_URL}?callback=procesarRespuestaServidor&nocache=${new Date().getTime()}`;
+      
+      script.onerror = function() {
+        cuadroTexto.value = "Error de conexión crítica.\nNo se pudo saltar la seguridad de Google. Verifica que la última versión del script esté desplegada como 'Cualquiera'.";
+        boton.disabled = false;
+        boton.innerText = "🔍 Buscar último acceso";
+      };
+
+      document.body.appendChild(script);
     }
   </script>
 
