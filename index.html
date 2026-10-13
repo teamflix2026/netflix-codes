@@ -4,67 +4,159 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Último correo de Netflix</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;700;800&display=swap" rel="stylesheet">
   <style>
+    :root {
+      --night: #1a1446;
+      --plum: #3b1e6e;
+      --magenta: #b4236b;
+      --red: #e50914;
+      --screen: #fbf9ff;
+      --ink: #231c3a;
+      --muted: #6d6585;
+      --link: #c1121f;
+    }
     * { box-sizing: border-box; }
+    html, body { min-height: 100%; }
     body {
-      font-family: Arial, Helvetica, sans-serif;
-      background: #141414;
-      color: #fff;
       margin: 0;
-      padding: 24px;
-      display: flex;
-      justify-content: center;
-    }
-    .container { width: 100%; max-width: 800px; }
-    h1 { color: #e50914; margin-top: 0; }
-    button {
-      background: #e50914;
+      padding: 28px 16px 48px;
+      font-family: "Outfit", "Segoe UI", Arial, sans-serif;
       color: #fff;
-      border: none;
-      padding: 12px 28px;
-      font-size: 16px;
-      border-radius: 4px;
+      background:
+        radial-gradient(900px 500px at 85% -10%, rgba(229, 9, 20, .35), transparent 60%),
+        radial-gradient(800px 500px at 0% 100%, rgba(180, 35, 107, .35), transparent 60%),
+        linear-gradient(160deg, var(--night) 0%, var(--plum) 55%, #5a2380 100%);
+      background-attachment: fixed;
+    }
+    .wrap { max-width: 820px; margin: 0 auto; }
+
+    header { display: flex; align-items: center; gap: 14px; margin-bottom: 22px; }
+    .logo {
+      width: 52px; height: 52px; border-radius: 14px;
+      background: var(--red);
+      display: grid; place-items: center;
+      box-shadow: 0 8px 24px rgba(229, 9, 20, .45);
+      flex: none;
+    }
+    .logo svg { width: 22px; height: 22px; fill: #fff; margin-left: 3px; }
+    h1 { margin: 0; font-size: 28px; font-weight: 800; letter-spacing: -.5px; }
+    .sub { margin: 2px 0 0; font-size: 14px; color: #d4c9f0; }
+
+    .actions { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin-bottom: 18px; }
+    button {
+      font-family: inherit;
+      background: var(--red);
+      color: #fff;
+      border: 0;
+      padding: 13px 30px;
+      font-size: 17px;
+      font-weight: 700;
+      border-radius: 999px;
       cursor: pointer;
+      box-shadow: 0 8px 22px rgba(229, 9, 20, .4);
+      transition: transform .15s ease, background .15s ease;
     }
-    button:hover { background: #f6121d; }
-    button:disabled { background: #666; cursor: not-allowed; }
+    button:hover { background: #f6232d; transform: translateY(-1px); }
+    button:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
+    button:disabled { background: #7b6f9a; box-shadow: none; cursor: not-allowed; transform: none; }
+    #status { font-size: 14px; color: #ffd98a; }
+
+    /* Pantalla del correo, con bordes de cinta de película */
+    .screen {
+      background: var(--screen);
+      color: var(--ink);
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 0 24px 60px rgba(8, 4, 30, .55);
+    }
+    .strip {
+      height: 18px;
+      background:
+        repeating-linear-gradient(90deg, transparent 0 14px, #2a1d55 14px 26px, transparent 26px 40px) center / 100% 8px no-repeat,
+        var(--night);
+    }
     #info {
-      margin: 16px 0 8px;
+      padding: 16px 22px;
       font-size: 14px;
-      color: #bbb;
-      line-height: 1.6;
+      line-height: 1.7;
+      color: var(--muted);
+      border-bottom: 1px solid #e6e0f5;
+      background: #f1ecfb;
     }
-    #status { margin-top: 12px; font-size: 14px; color: #f5c518; }
-    textarea {
-      width: 100%;
-      height: 420px;
-      margin-top: 8px;
-      padding: 12px;
-      font-size: 14px;
-      font-family: Consolas, monospace;
-      background: #1f1f1f;
-      color: #eee;
-      border: 1px solid #444;
-      border-radius: 4px;
-      resize: vertical;
+    #info:empty { display: none; }
+    #info b { color: var(--ink); }
+    #contenido {
+      padding: 20px 22px 26px;
+      min-height: 280px;
+      max-height: 60vh;
+      overflow-y: auto;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+      font-size: 15.5px;
+      line-height: 1.7;
+    }
+    #contenido.vacio { color: #9b93b3; font-style: italic; }
+
+    /* Enlaces acortados en una sola línea */
+    #contenido a.enlace {
+      display: inline-block;
+      max-width: 100%;
+      vertical-align: bottom;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      background: #ffe9ea;
+      color: var(--link);
+      font-weight: 600;
+      font-size: 14.5px;
+      text-decoration: none;
+      padding: 1px 12px;
+      border-radius: 999px;
+      border: 1px solid #f7c4c7;
+    }
+    #contenido a.enlace:hover { background: var(--red); color: #fff; border-color: var(--red); }
+    #contenido a.enlace:focus-visible { outline: 3px solid var(--plum); outline-offset: 2px; }
+
+    @media (max-width: 480px) {
+      h1 { font-size: 23px; }
+      #contenido { font-size: 15px; }
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>Último correo de Netflix</h1>
-    <button id="btnBuscar">Buscar</button>
-    <div id="status"></div>
-    <div id="info"></div>
-    <textarea id="contenido" readonly placeholder="Aquí aparecerá el contenido del correo..."></textarea>
+  <div class="wrap">
+    <header>
+      <div class="logo" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path d="M5 3.5v17a1 1 0 0 0 1.5.86l14-8.5a1 1 0 0 0 0-1.72l-14-8.5A1 1 0 0 0 5 3.5z"/></svg>
+      </div>
+      <div>
+        <h1>Último correo de Netflix</h1>
+        <p class="sub">Lee tu correo más reciente sin salir de la página.</p>
+      </div>
+    </header>
+
+    <div class="actions">
+      <button id="btnBuscar">Buscar</button>
+      <span id="status"></span>
+    </div>
+
+    <div class="screen">
+      <div class="strip"></div>
+      <div id="info"></div>
+      <div id="contenido" class="vacio">Aquí aparecerá el contenido del correo.</div>
+      <div class="strip"></div>
+    </div>
   </div>
 
   <script src="https://accounts.google.com/gsi/client" async defer></script>
   <script>
     // ====== CONFIGURACIÓN ======
-    const CLIENT_ID = "758070872300-k1bm8obph5i2ld6oakr6tt1usfcjgfiv.apps.googleusercontent.com";
+    const CLIENT_ID = "TU_CLIENT_ID_AQUI";
     const SCOPES = "https://www.googleapis.com/auth/gmail.readonly";
-    const QUERY = "from:netflix"; // puedes cambiarlo, ej: "from:info@account.netflix.com"
+    const QUERY = "from:netflix"; // ej: "from:info@account.netflix.com"
     // ===========================
 
     let tokenClient = null;
@@ -73,7 +165,7 @@
     const btn = document.getElementById("btnBuscar");
     const statusEl = document.getElementById("status");
     const infoEl = document.getElementById("info");
-    const textarea = document.getElementById("contenido");
+    const contenidoEl = document.getElementById("contenido");
 
     function setStatus(msg) { statusEl.textContent = msg; }
 
@@ -103,7 +195,6 @@
         }
       }
       btn.disabled = true;
-      textarea.value = "";
       infoEl.textContent = "";
       if (accessToken) {
         buscarUltimoCorreo();
@@ -118,12 +209,10 @@
         headers: { Authorization: "Bearer " + accessToken }
       });
       if (res.status === 401) {
-        accessToken = null; // token vencido
+        accessToken = null;
         throw new Error("La sesión venció. Presiona Buscar de nuevo.");
       }
-      if (!res.ok) {
-        throw new Error("Error de Gmail API (" + res.status + ")");
-      }
+      if (!res.ok) throw new Error("Error de Gmail API (" + res.status + ")");
       return res.json();
     }
 
@@ -132,17 +221,13 @@
         setStatus("Buscando el último correo de Netflix...");
         const base = "https://gmail.googleapis.com/gmail/v1/users/me/messages";
 
-        const lista = await gmailFetch(
-          base + "?maxResults=1&q=" + encodeURIComponent(QUERY)
-        );
-
+        const lista = await gmailFetch(base + "?maxResults=1&q=" + encodeURIComponent(QUERY));
         if (!lista.messages || lista.messages.length === 0) {
           setStatus("No se encontraron correos de Netflix.");
           return;
         }
 
         const msg = await gmailFetch(base + "/" + lista.messages[0].id + "?format=full");
-
         const headers = msg.payload.headers || [];
         const getHeader = (name) => {
           const h = headers.find(x => x.name.toLowerCase() === name.toLowerCase());
@@ -154,7 +239,14 @@
           "<b>Asunto:</b> " + escapeHtml(getHeader("Subject")) + "<br>" +
           "<b>Fecha:</b> " + escapeHtml(getHeader("Date"));
 
-        textarea.value = extraerCuerpo(msg.payload) || "(El correo no tiene contenido de texto)";
+        const texto = extraerCuerpo(msg.payload);
+        contenidoEl.classList.remove("vacio");
+        if (texto) {
+          contenidoEl.innerHTML = linkify(texto);
+        } else {
+          contenidoEl.classList.add("vacio");
+          contenidoEl.textContent = "(El correo no tiene contenido de texto)";
+        }
         setStatus("Listo ✔");
       } catch (err) {
         setStatus(err.message);
@@ -184,16 +276,36 @@
       return null;
     }
 
+    // Convierte HTML en texto, conservando las URLs de los enlaces
+    function htmlATexto(html) {
+      const doc = new DOMParser().parseFromString(html, "text/html");
+      doc.querySelectorAll("style, script, head").forEach(el => el.remove());
+
+      doc.querySelectorAll("a[href]").forEach(a => {
+        const href = a.getAttribute("href") || "";
+        if (!/^https?:\/\//i.test(href)) return;
+        const txt = (a.textContent || "").trim();
+        const esUrl = /^https?:\/\//i.test(txt);
+        a.replaceWith(doc.createTextNode(txt && !esUrl ? txt + " " + href + " " : href + " "));
+      });
+
+      doc.querySelectorAll("br").forEach(el => el.replaceWith(doc.createTextNode("\n")));
+      doc.querySelectorAll("p, div, tr, li, h1, h2, h3, h4, h5, h6").forEach(el => {
+        el.appendChild(doc.createTextNode("\n"));
+      });
+
+      return (doc.body.textContent || "")
+        .replace(/[ \t\u00a0]+/g, " ")
+        .replace(/ ?\n ?/g, "\n")
+        .replace(/\n{3,}/g, "\n\n")
+        .trim();
+    }
+
     function extraerCuerpo(payload) {
       const plano = buscarParte(payload, "text/plain");
-      if (plano) return decodeBase64Url(plano);
-
+      if (plano) return decodeBase64Url(plano).trim();
       const html = buscarParte(payload, "text/html");
-      if (html) {
-        const doc = new DOMParser().parseFromString(decodeBase64Url(html), "text/html");
-        doc.querySelectorAll("style, script").forEach(el => el.remove());
-        return (doc.body.textContent || "").replace(/\n\s*\n\s*\n+/g, "\n\n").trim();
-      }
+      if (html) return htmlATexto(decodeBase64Url(html));
       return "";
     }
 
@@ -201,6 +313,40 @@
       return s.replace(/[&<>"']/g, c => ({
         "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
       }[c]));
+    }
+
+    // Etiqueta corta del enlace: "🔗 dominio.com/…"
+    function etiquetaCorta(url) {
+      try {
+        const u = new URL(url);
+        const host = u.hostname.replace(/^www\./, "");
+        const largo = (u.pathname + u.search + u.hash).length > 1;
+        return "🔗 " + host + (largo ? "/…" : "");
+      } catch (e) {
+        return "🔗 Abrir enlace";
+      }
+    }
+
+    // Convierte URLs en hipervínculos clicables de una sola línea
+    function linkify(texto) {
+      const regex = /https?:\/\/[^\s<>"'\])}]+/g;
+      let html = "";
+      let ultimo = 0;
+      let m;
+      while ((m = regex.exec(texto)) !== null) {
+        let url = m[0];
+        // Quita puntuación final que no es parte del enlace
+        const cola = url.match(/[.,;:!?]+$/);
+        if (cola) url = url.slice(0, -cola[0].length);
+
+        html += escapeHtml(texto.slice(ultimo, m.index));
+        html += '<a class="enlace" href="' + escapeHtml(url) + '" target="_blank" rel="noopener noreferrer" title="Abrir enlace">' +
+                escapeHtml(etiquetaCorta(url)) + "</a>";
+        ultimo = m.index + url.length;
+        regex.lastIndex = ultimo;
+      }
+      html += escapeHtml(texto.slice(ultimo));
+      return html;
     }
   </script>
 </body>
