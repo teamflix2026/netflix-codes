@@ -153,7 +153,7 @@
 
   <script>
     // ====== CONFIGURACIÓN ======
-    const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxHH1ztaU8fNoVPi7AtO51SMHStQSsdPYP-FtQzQO0L_VmWfUy-wW3gEmc5b4GjWlvSNg/exec";
+    const APPS_SCRIPT_URL = "PEGA_AQUI_LA_URL_DE_APPS_SCRIPT";
     // ===========================
 
     const btn = document.getElementById("btnBuscar");
@@ -172,7 +172,18 @@
         setStatus("Buscando el último correo de Netflix...");
         const res = await fetch(APPS_SCRIPT_URL);
         if (!res.ok) throw new Error("No se pudo conectar (" + res.status + ")");
-        const data = await res.json();
+        const crudo = (await res.text()).trim();
+        let data;
+        try {
+          data = JSON.parse(crudo);
+        } catch (e) {
+          // Por si el script devuelve formato tipo nombreFuncion({...});
+          const m = crudo.match(/^[\w$.]+\(([\s\S]*)\);?$/);
+          if (!m) {
+            throw new Error("Respuesta inesperada del script. Revisa que la URL /exec sea la correcta y esté publicada como 'Cualquier persona'.");
+          }
+          data = JSON.parse(m[1]);
+        }
 
         if (data.error) throw new Error(data.error);
         if (data.vacio) {
@@ -185,7 +196,8 @@
           "<b>Asunto:</b> " + escapeHtml(data.subject || "") + "<br>" +
           "<b>Fecha:</b> " + escapeHtml(data.date || "");
 
-        const texto = (data.text && data.text.trim()) ? data.text.trim() : htmlATexto(data.html || "");
+        let texto = (data.text && data.text.trim()) ? data.text.trim() : htmlATexto(data.html || "");
+        texto = cortarDespuesDeFrase(texto);
         contenidoEl.classList.remove("vacio");
         if (texto) {
           contenidoEl.innerHTML = linkify(texto);
@@ -202,6 +214,15 @@
     }
 
     // ---------- Utilidades ----------
+    // Corta el texto para que termine en la frase indicada
+    const FRASE_FINAL = /El\s+enlace\s+vence\s+en\s+15\s+minutos\.?/i;
+
+    function cortarDespuesDeFrase(texto) {
+      const m = FRASE_FINAL.exec(texto);
+      if (!m) return texto; // si no aparece la frase, se muestra todo
+      return texto.slice(0, m.index + m[0].length).trim();
+    }
+
     function decodeBase64Url(data) {
       const b64 = data.replace(/-/g, "+").replace(/_/g, "/");
       const bin = atob(b64);
