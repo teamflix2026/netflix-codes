@@ -2,219 +2,206 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Acceso Compartido — Netflix</title>
-  <!-- Importamos una tipografía moderna y limpia desde Google Fonts -->
-  <link rel="preconnect" href="https://googleapis.com">
-  <link rel="preconnect" href="https://gstatic.com" crossorigin>
-  <link href="https://googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-  
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Último correo de Netflix</title>
   <style>
-    :root {
-      --netflix-red: #E50914;
-      --netflix-dark-red: #b80710;
-      --bg-gradient: radial-gradient(circle at top, #2b0305 0%, #0c0c0c 60%);
-      --card-bg: rgba(26, 26, 26, 0.85);
-      --input-bg: rgba(10, 10, 10, 0.6);
-    }
-
+    * { box-sizing: border-box; }
     body {
-      font-family: 'Inter', sans-serif;
-      background: var(--bg-gradient);
-      background-color: #0c0c0c;
-      color: #ffffff;
-      min-height: 100vh;
+      font-family: Arial, Helvetica, sans-serif;
+      background: #141414;
+      color: #fff;
       margin: 0;
+      padding: 24px;
       display: flex;
-      align-items: center;
       justify-content: center;
-      padding: 20px;
-      box-sizing: border-box;
-      -webkit-font-smoothing: antialiased;
     }
-
-    .wrapper {
-      max-width: 480px;
-      width: 100%;
-      background: var(--card-bg);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      padding: 40px 30px;
-      border-radius: 16px;
-      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6);
-      text-align: center;
-    }
-
-    h1 {
-      color: var(--netflix-red);
-      font-size: 2rem;
-      font-weight: 700;
-      letter-spacing: -0.5px;
-      margin-top: 0;
-      margin-bottom: 12px;
-    }
-
-    p {
-      color: #b3b3b3;
-      font-size: 0.95rem;
-      line-height: 1.5;
-      margin-bottom: 30px;
-    }
-
-    .btn-buscar {
-      background-color: var(--netflix-red);
-      color: #ffffff;
+    .container { width: 100%; max-width: 800px; }
+    h1 { color: #e50914; margin-top: 0; }
+    button {
+      background: #e50914;
+      color: #fff;
       border: none;
-      padding: 16px 24px;
-      font-size: 1rem;
-      font-weight: 600;
-      border-radius: 8px;
+      padding: 12px 28px;
+      font-size: 16px;
+      border-radius: 4px;
       cursor: pointer;
+    }
+    button:hover { background: #f6121d; }
+    button:disabled { background: #666; cursor: not-allowed; }
+    #info {
+      margin: 16px 0 8px;
+      font-size: 14px;
+      color: #bbb;
+      line-height: 1.6;
+    }
+    #status { margin-top: 12px; font-size: 14px; color: #f5c518; }
+    textarea {
       width: 100%;
-      transition: all 0.2s ease;
-      box-shadow: 0 4px 12px rgba(229, 9, 20, 0.3);
-    }
-
-    .btn-buscar:hover {
-      background-color: var(--netflix-dark-red);
-      transform: translateY(-1px);
-      box-shadow: 0 6px 16px rgba(229, 9, 20, 0.4);
-    }
-
-    .btn-buscar:disabled {
-      background-color: #333333;
-      color: #777777;
-      cursor: not-allowed;
-      box-shadow: none;
-      transform: none;
-    }
-
-    label {
-      display: block;
-      text-align: left;
-      margin-top: 28px;
-      margin-bottom: 8px;
-      color: #e5e5e5;
-      font-size: 0.85rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-
-    .resultado-txt {
-      width: 100%;
-      height: 170px;
-      background-color: var(--input-bg);
-      color: #f5f5f7;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 8px;
-      padding: 16px;
-      box-sizing: border-box;
-      font-family: 'Inter', sans-serif;
-      font-size: 0.95rem;
-      line-height: 1.5;
-      resize: none;
-      outline: none;
-    }
-
-    .btn-abrir {
-      display: none;
-      background-color: #ffffff;
-      color: #0c0c0c;
-      text-decoration: none;
-      padding: 15px;
-      font-weight: 600;
-      font-size: 1rem;
-      border-radius: 8px;
-      margin-top: 16px;
-      transition: all 0.2s ease;
-      box-shadow: 0 4px 12px rgba(255, 255, 255, 0.1);
-    }
-
-    .btn-abrir:hover {
-      background-color: #e6e6e6;
+      height: 420px;
+      margin-top: 8px;
+      padding: 12px;
+      font-size: 14px;
+      font-family: Consolas, monospace;
+      background: #1f1f1f;
+      color: #eee;
+      border: 1px solid #444;
+      border-radius: 4px;
+      resize: vertical;
     }
   </style>
 </head>
 <body>
-
-  <div class="wrapper">
-    <h1>Enlaces Netflix</h1>
-    <p>Consulta en tiempo real las credenciales y accesos del último correo recibido en el alias de administración.</p>
-    
-    <button id="btn" class="btn-buscar" onclick="buscarUltimoCorreo()">🔍 Buscar último acceso</button>
-    
-    <label for="box">Información extraída</label>
-    <textarea id="box" class="resultado-txt" readonly>Presiona el botón superior para iniciar la consulta...</textarea>
-    
-    <a id="btn-netflix" class="btn-abrir" href="#" target="_blank">🔓 Ir directo a Netflix</a>
+  <div class="container">
+    <h1>Último correo de Netflix</h1>
+    <button id="btnBuscar">Buscar</button>
+    <div id="status"></div>
+    <div id="info"></div>
+    <textarea id="contenido" readonly placeholder="Aquí aparecerá el contenido del correo..."></textarea>
   </div>
 
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
   <script>
-    const API_URL = "https://script.google.com/macros/s/AKfycbxHH1ztaU8fNoVPi7AtO51SMHStQSsdPYP-FtQzQO0L_VmWfUy-wW3gEmc5b4GjWlvSNg/exec";
+    // ====== CONFIGURACIÓN ======
+    const CLIENT_ID = "TU_CLIENT_ID_AQUI";
+    const SCOPES = "https://www.googleapis.com/auth/gmail.readonly";
+    const QUERY = "from:netflix"; // puedes cambiarlo, ej: "from:info@account.netflix.com"
+    // ===========================
 
-    // Hacemos que la función de respuesta sea GLOBAL y visible para Google de forma explícita
-    window.procesarRespuestaServidor = function(data) {
-      const boton = document.getElementById("btn");
-      const cuadroTexto = document.getElementById("box");
-      const botonNetflix = document.getElementById("btn-netflix");
+    let tokenClient = null;
+    let accessToken = null;
 
-      try {
-        if (data.error) {
-          cuadroTexto.value = `Aviso del sistema:\n${data.error}`;
-        } else {
-          // Reemplazo de las entidades HTML que Netflix inyecta en los botones
-          let enlaceLimpio = data.enlace.replace(/&amp;/g, '&');
+    const btn = document.getElementById("btnBuscar");
+    const statusEl = document.getElementById("status");
+    const infoEl = document.getElementById("info");
+    const textarea = document.getElementById("contenido");
 
-          cuadroTexto.value = `📌 REGISTRO DE ACCESO COMPARTIDO\n` +
-                              `• Recibido: ${data.fecha}\n` +
-                              `• Tipo: ${data.asunto}\n` +
-                              `──────────────────────────────\n` +
-                              `• Enlace directo:\n${enlaceLimpio}`;
-          
-          botonNetflix.href = enlaceLimpio;
-          botonNetflix.style.display = "block";
+    function setStatus(msg) { statusEl.textContent = msg; }
+
+    function initTokenClient() {
+      tokenClient = google.accounts.oauth2.initTokenClient({
+        client_id: CLIENT_ID,
+        scope: SCOPES,
+        callback: (resp) => {
+          if (resp.error) {
+            setStatus("Error de autorización: " + resp.error);
+            btn.disabled = false;
+            return;
+          }
+          accessToken = resp.access_token;
+          buscarUltimoCorreo();
         }
-      } catch (err) {
-        cuadroTexto.value = "Error al procesar la estructura de datos recibida.";
-        console.error(err);
-      } finally {
-        boton.disabled = false;
-        boton.innerText = "🔍 Buscar último acceso";
+      });
+    }
+
+    btn.addEventListener("click", () => {
+      if (!tokenClient) {
+        if (window.google && google.accounts) {
+          initTokenClient();
+        } else {
+          setStatus("Aún se está cargando Google, intenta de nuevo en un momento.");
+          return;
+        }
       }
-    };
+      btn.disabled = true;
+      textarea.value = "";
+      infoEl.textContent = "";
+      if (accessToken) {
+        buscarUltimoCorreo();
+      } else {
+        setStatus("Solicitando permiso a Google...");
+        tokenClient.requestAccessToken({ prompt: "" });
+      }
+    });
 
-    function buscarUltimoCorreo() {
-      const boton = document.getElementById("btn");
-      const cuadroTexto = document.getElementById("box");
-      const botonNetflix = document.getElementById("btn-netflix");
+    async function gmailFetch(url) {
+      const res = await fetch(url, {
+        headers: { Authorization: "Bearer " + accessToken }
+      });
+      if (res.status === 401) {
+        accessToken = null; // token vencido
+        throw new Error("La sesión venció. Presiona Buscar de nuevo.");
+      }
+      if (!res.ok) {
+        throw new Error("Error de Gmail API (" + res.status + ")");
+      }
+      return res.json();
+    }
 
-      boton.disabled = true;
-      boton.innerText = "🔄 Consultando a Gmail...";
-      cuadroTexto.value = "Abriendo canal seguro con teamflix2026+2@gmail.com...";
-      botonNetflix.style.display = "none";
+    async function buscarUltimoCorreo() {
+      try {
+        setStatus("Buscando el último correo de Netflix...");
+        const base = "https://gmail.googleapis.com/gmail/v1/users/me/messages";
 
-      // Eliminar scripts JSONP anteriores para limpiar el DOM
-      const scriptViejo = document.getElementById("jsonp-script");
-      if (scriptViejo) scriptViejo.remove();
+        const lista = await gmailFetch(
+          base + "?maxResults=1&q=" + encodeURIComponent(QUERY)
+        );
 
-      // INYECCIÓN DINÁMICA DE SCRIPT GLOBAL (JSONP INMUNE A CORS)
-      const script = document.createElement("script");
-      script.id = "jsonp-script";
-      
-      // Enviamos el timestamp (?nocache=) para destruir la caché del navegador en cada clic
-      script.src = `${API_URL}?callback=procesarRespuestaServidor&nocache=${new Date().getTime()}`;
-      
-      script.onerror = function() {
-        cuadroTexto.value = "Error de conexión crítica.\nNo se pudo saltar la seguridad de Google. Verifica que la última versión del script esté desplegada como 'Cualquiera'.";
-        boton.disabled = false;
-        boton.innerText = "🔍 Buscar último acceso";
-      };
+        if (!lista.messages || lista.messages.length === 0) {
+          setStatus("No se encontraron correos de Netflix.");
+          return;
+        }
 
-      document.body.appendChild(script);
+        const msg = await gmailFetch(base + "/" + lista.messages[0].id + "?format=full");
+
+        const headers = msg.payload.headers || [];
+        const getHeader = (name) => {
+          const h = headers.find(x => x.name.toLowerCase() === name.toLowerCase());
+          return h ? h.value : "";
+        };
+
+        infoEl.innerHTML =
+          "<b>De:</b> " + escapeHtml(getHeader("From")) + "<br>" +
+          "<b>Asunto:</b> " + escapeHtml(getHeader("Subject")) + "<br>" +
+          "<b>Fecha:</b> " + escapeHtml(getHeader("Date"));
+
+        textarea.value = extraerCuerpo(msg.payload) || "(El correo no tiene contenido de texto)";
+        setStatus("Listo ✔");
+      } catch (err) {
+        setStatus(err.message);
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    // ---------- Utilidades ----------
+    function decodeBase64Url(data) {
+      const b64 = data.replace(/-/g, "+").replace(/_/g, "/");
+      const bin = atob(b64);
+      const bytes = Uint8Array.from(bin, c => c.charCodeAt(0));
+      return new TextDecoder("utf-8").decode(bytes);
+    }
+
+    function buscarParte(payload, mimeType) {
+      if (payload.mimeType === mimeType && payload.body && payload.body.data) {
+        return payload.body.data;
+      }
+      if (payload.parts) {
+        for (const p of payload.parts) {
+          const r = buscarParte(p, mimeType);
+          if (r) return r;
+        }
+      }
+      return null;
+    }
+
+    function extraerCuerpo(payload) {
+      const plano = buscarParte(payload, "text/plain");
+      if (plano) return decodeBase64Url(plano);
+
+      const html = buscarParte(payload, "text/html");
+      if (html) {
+        const doc = new DOMParser().parseFromString(decodeBase64Url(html), "text/html");
+        doc.querySelectorAll("style, script").forEach(el => el.remove());
+        return (doc.body.textContent || "").replace(/\n\s*\n\s*\n+/g, "\n\n").trim();
+      }
+      return "";
+    }
+
+    function escapeHtml(s) {
+      return s.replace(/[&<>"']/g, c => ({
+        "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+      }[c]));
     }
   </script>
-
 </body>
 </html>
